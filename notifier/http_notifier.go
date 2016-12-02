@@ -12,32 +12,32 @@ package notifier
 
 import (
 	"bytes"
+	"fmt"
 	log "github.com/cihub/seelog"
-	"github.com/linkedin/Burrow/protocol"
+	"github.com/ContentSquare/Burrow/protocol"
 	"github.com/pborman/uuid"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"text/template"
 	"time"
-	"fmt"
 )
 
 type HttpNotifier struct {
-	RequestOpen        HttpNotifierRequest
-	RequestClose       HttpNotifierRequest
-	Threshold          int
-	SendClose          bool
-	Extras             map[string]string
-	HttpClient         *http.Client
-	groupIds           map[string]map[string]Event
+	RequestOpen  HttpNotifierRequest
+	RequestClose HttpNotifierRequest
+	Threshold    int
+	SendClose    bool
+	Extras       map[string]string
+	HttpClient   *http.Client
+	groupIds     map[string]map[string]Event
 }
 
 type HttpNotifierRequest struct {
-	Url string
+	Url          string
 	TemplateFile string
-	Method string
-	template *template.Template
+	Method       string
+	template     *template.Template
 }
 
 type Event struct {
@@ -150,7 +150,7 @@ func (notifier *HttpNotifier) sendConsumerGroupStatusNotify(msg Message) error {
 				Start:   notifier.groupIds[msg.Cluster][msg.Group].Start,
 				Extras:  notifier.Extras,
 			}, notifier.HttpClient, fmt.Sprintf("close for group %s in cluster %s (Id %s)", msg.Group,
-					msg.Cluster, notifier.groupIds[msg.Cluster][msg.Group].Id))
+				msg.Cluster, notifier.groupIds[msg.Cluster][msg.Group].Id))
 
 			if err != nil {
 				return err

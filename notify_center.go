@@ -12,8 +12,8 @@ package main
 
 import (
 	log "github.com/cihub/seelog"
-	"github.com/linkedin/Burrow/notifier"
-	"github.com/linkedin/Burrow/protocol"
+	"github.com/ContentSquare/Burrow/notifier"
+	"github.com/ContentSquare/Burrow/protocol"
 	"math/rand"
 	"net"
 	"net/http"
@@ -228,9 +228,9 @@ func NewHttpNotifier(app *ApplicationContext) (*notifier.HttpNotifier, error) {
 			Method:       httpConfig.MethodClose,
 			TemplateFile: httpConfig.TemplateClose,
 		},
-		Threshold:          httpConfig.PostThreshold,
-		SendClose:          httpConfig.SendClose,
-		Extras:             extras,
+		Threshold: httpConfig.PostThreshold,
+		SendClose: httpConfig.SendClose,
+		Extras:    extras,
 		HttpClient: &http.Client{
 			Timeout: time.Duration(httpConfig.Timeout) * time.Second,
 			Transport: &http.Transport{

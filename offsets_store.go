@@ -14,7 +14,7 @@ import (
 	"container/ring"
 	"fmt"
 	log "github.com/cihub/seelog"
-	"github.com/linkedin/Burrow/protocol"
+	"github.com/ContentSquare/Burrow/protocol"
 	"regexp"
 	"sync"
 	"time"
@@ -449,6 +449,7 @@ func (storage *OffsetStorage) evaluateGroup(cluster string, group string, result
 				Topic:     topic,
 				Partition: int32(partition),
 				Status:    protocol.StatusOK,
+				StatusInt: protocol.StatusOKInt,
 				Start:     firstOffset,
 				End:       lastOffset,
 			}
@@ -463,7 +464,9 @@ func (storage *OffsetStorage) evaluateGroup(cluster string, group string, result
 			// Rule 4 - Offsets haven't been committed in a while
 			if ((time.Now().Unix() * 1000) - lastOffset.Timestamp) > (lastOffset.Timestamp - firstOffset.Timestamp) {
 				status.Status = protocol.StatusError
+				status.StatusInt = protocol.StatusErrorInt
 				thispart.Status = protocol.StatusStop
+				thispart.StatusInt = protocol.StatusStopInt
 				status.Partitions = append(status.Partitions, thispart)
 				continue
 			}
@@ -473,7 +476,9 @@ func (storage *OffsetStorage) evaluateGroup(cluster string, group string, result
 			for i := 1; i <= maxidx; i++ {
 				if offsets[i].Offset < offsets[i-1].Offset {
 					status.Status = protocol.StatusError
+					status.StatusInt = protocol.StatusErrorInt
 					thispart.Status = protocol.StatusRewind
+					thispart.StatusInt = protocol.StatusRewindInt
 					status.Partitions = append(status.Partitions, thispart)
 					continue
 				}
@@ -497,7 +502,9 @@ func (storage *OffsetStorage) evaluateGroup(cluster string, group string, result
 
 				// Rule 2
 				status.Status = protocol.StatusError
+				status.StatusInt = protocol.StatusErrorInt
 				thispart.Status = protocol.StatusStall
+				thispart.StatusInt = protocol.StatusStallInt
 			} else {
 				// Rule 1 passes, or shortcut a full check on Rule 3 if we can
 				if (firstOffset.Lag == 0) || (lastOffset.Lag <= firstOffset.Lag) {
@@ -520,8 +527,10 @@ func (storage *OffsetStorage) evaluateGroup(cluster string, group string, result
 					// Rule 3
 					if status.Status == protocol.StatusOK {
 						status.Status = protocol.StatusWarning
+						status.StatusInt = protocol.StatusWarningInt
 					}
 					thispart.Status = protocol.StatusWarning
+					thispart.StatusInt = protocol.StatusWarningInt
 				}
 			}
 
@@ -690,14 +699,14 @@ func (storage *OffsetStorage) debugPrintGroup(cluster string, group string) {
 func (storage *OffsetStorage) AcceptConsumerGroup(group string) bool {
 	// First check to make sure group is in the whitelist
 	if (storage.groupWhitelist != nil) && !storage.groupWhitelist.MatchString(group) {
-		return false;
+		return false
 	}
 
 	// The group is in the whitelist (or there is not whitelist).  Now check the blacklist
 	if (storage.groupBlacklist != nil) && storage.groupBlacklist.MatchString(group) {
-		return false;
+		return false
 	}
 
 	// good to go
-	return true;
+	return true
 }

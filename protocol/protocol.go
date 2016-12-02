@@ -43,6 +43,16 @@ const (
 	StatusRewind   StatusConstant = 6
 )
 
+const (
+	StatusNotFoundInt int = 0
+	StatusOKInt       int = 1
+	StatusWarningInt  int = 2
+	StatusErrorInt    int = 3
+	StatusStopInt     int = 4
+	StatusStallInt    int = 5
+	StatusRewindInt   int = 6
+)
+
 var StatusStrings = [...]string{"NOTFOUND", "OK", "WARN", "ERR", "STOP", "STALL", "REWIND"}
 
 func (c StatusConstant) String() string {
@@ -63,6 +73,7 @@ type PartitionStatus struct {
 	Topic     string         `json:"topic"`
 	Partition int32          `json:"partition"`
 	Status    StatusConstant `json:"status"`
+	StatusInt int            `json:"status_int"`
 	Start     ConsumerOffset `json:"start"`
 	End       ConsumerOffset `json:"end"`
 }
@@ -71,6 +82,7 @@ type ConsumerGroupStatus struct {
 	Cluster         string             `json:"cluster"`
 	Group           string             `json:"group"`
 	Status          StatusConstant     `json:"status"`
+	StatusInt       int                `json:"status_int"`
 	Complete        bool               `json:"complete"`
 	Partitions      []*PartitionStatus `json:"partitions"`
 	TotalPartitions int                `json:"partition_count"`
